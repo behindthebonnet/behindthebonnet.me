@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Behind The Bonnet – First Website Setup Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Step-by-step guide to set up your first website using VS Code, Git, and GitHub Copilot." />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --bg-soft: #161b24;
+      --bg-softer: #1e2531;
+      --bg-alt: #0f1218;
+      --text: #f5f7fa;
+      --text-dim: #b2bccd;
+      --accent: #4d8dff;
+      --accent-soft: #283f63;
+      --accent-glow: 174 75% 56%;
+      --danger: #f45e5e;
+      --radius-sm: 6px;
+      --radius: 12px;
+      --radius-lg: 22px;
+      --gradient: linear-gradient(120deg,#4d8dff,#6d6df8 38%,#b966ff 72%,#ff8bd2);
+      --shadow-1: 0 2px 4px -1px rgba(0,0,0,.35),0 6px 18px -4px rgba(0,0,0,.5);
+      --code-bg: #121820;
+      --focus: 0 0 0 3px rgba(77,141,255,.35);
+    }
+    .light {
+      --bg: #f5f7fb;
+      --bg-alt: #ffffff;
+      --bg-soft: #eef2f7;
+      --bg-softer: #dde4ed;
+      --text: #1d2430;
+      --text-dim: #5a6475;
+      --accent-soft: #c9defd;
+      --code-bg: #1d2430;
+      --shadow-1: 0 3px 10px -2px rgba(0,0,0,.15),0 10px 28px -8px rgba(0,0,0,.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    html,body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter",-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      min-height: 100%;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 15% 20%,rgba(77,141,255,.12),transparent 60%),
+        radial-gradient(circle at 85% 70%,rgba(185,102,255,.10),transparent 60%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    header {
+      padding: clamp(2.5rem,5vw,4.5rem) clamp(1.2rem,4vw,3.5rem) 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 65% 35%,rgba(109,109,248,.18),transparent 60%),
+        radial-gradient(circle at 30% 70%,rgba(255,139,210,.18),transparent 65%);
+      mix-blend-mode: plus-lighter;
+      opacity: .55;
+      pointer-events: none;
+    }
+
+    .hero {
+      max-width: 950px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.8rem,6.2vw,4.25rem);
+      line-height: 1.05;
+      margin: 0 0 1.2rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg,#fff,#d9e7ff 28%,#e2d8ff 60%,#ffdff4);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-weight: 800;
+    }
+
+    .hero p.lead {
+      font-size: clamp(1.05rem,1.5vw,1.35rem);
+      color: var(--text-dim);
+      max-width: 760px;
+      margin: 0 0 2.2rem;
+      font-weight: 500;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      --btn-bg: var(--accent);
+      --btn-color: #fff;
+      background: var(--btn-bg);
+      color: var(--btn-color);
+      padding: 0.9rem 1.3rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      position: relative;
+      line-height: 1.1;
+      transition: background .35s,transform .35s;
+      box-shadow: 0 4px 18px -4px rgba(77,141,255,.55),0 1px 0 0 rgba(255,255,255,.2) inset;
+    }
+
+    .btn:is(:hover,:focus-visible) {
+      transform: translateY(-2px);
+      background: #6d9eff;
+      outline: none;
+    }
+    .btn.alt {
+      --btn-bg: var(--bg-soft);
+      --btn-color: var(--text);
+      box-shadow: 0 2px 6px -2px rgba(0,0,0,.4) inset,0 2px 10px -4px rgba(0,0,0,.35);
+    }
+    .btn.alt:is(:hover,:focus-visible) {
+      background: var(--bg-softer);
+    }
+    .btn.outline {
+      background: linear-gradient(var(--bg) 0 0) padding-box, var(--gradient) border-box;
+      border: 1px solid transparent;
+      color: #fff;
+      box-shadow: 0 2px 10px -4px rgba(0,0,0,.4);
+    }
+    .btn.outline:is(:hover,:focus-visible) {
+      background: linear-gradient(var(--bg-soft) 0 0) padding-box, var(--gradient) border-box;
+    }
+
+    nav {
+      padding: 0 clamp(1.2rem,4vw,3.5rem) 2.5rem;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .toc {
+      background: var(--bg-alt);
+      border: 1px solid var(--bg-softer);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.3rem;
+      display: grid;
+      gap: 0.55rem;
+      position: relative;
+      box-shadow: var(--shadow-1);
+    }
+    .toc h2 {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin: 0 0 .4rem;
+      font-weight: 600;
+      color: var(--text-dim);
+    }
+    .toc a {
+      font-size: 0.95rem;
+      text-decoration: none;
+      color: var(--text-dim);
+      padding: .4rem .55rem;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      position: relative;
+      transition: color .3s, background .3s;
+    }
+    .toc a span.step {
+      background: var(--accent-soft);
+      color: #fff;
+      font-size: .65rem;
+      width: 1.4rem;
+      height: 1.4rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-weight: 600;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.1);
+    }
+    .toc a:hover {
+      color: #fff;
+      background: var(--bg-soft);
+    }
+
+    main {
+      max-width: 1180px;
+      padding: 0 clamp(1.2rem,4vw,3.5rem) 6rem;
+      margin: 2.2rem auto 5rem;
+    }
+
+    section.step {
+      background: linear-gradient(145deg,var(--bg-alt),var(--bg-soft));
+      border: 1px solid var(--bg-softer);
+      border-radius: clamp(14px,1.5vw,28px);
+      padding: clamp(1.8rem,3vw,3rem) clamp(1.4rem,2.5vw,2.7rem);
+      margin-bottom: 2.2rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-1);
+      isolation: isolate;
+    }
+    section.step::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 80% 15%,rgba(109,109,248,.20),transparent 55%),
+        radial-gradient(circle at 15% 85%,rgba(77,141,255,.18),transparent 60%);
+      opacity: .55;
+      mix-blend-mode: plus-lighter;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .step-header {
+      display: flex;
+      gap: 1.2rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .badge {
+      background: var(--gradient);
+      color: #10141c;
+      font-weight: 700;
+      font-size: .85rem;
+      padding: .55rem .8rem;
+      border-radius: 10px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      box-shadow: 0 3px 12px -2px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.18) inset;
+    }
+    section.step h2 {
+      font-size: clamp(1.4rem,2.1vw,2rem);
+      margin: 0;
+      background: linear-gradient(90deg,#fff,#d2e2ff 55%,#e3d9ff);
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+    section.step p {
+      margin-top: 1rem;
+      margin-bottom: 1.1rem;
+      color: var(--text-dim);
+      font-size: 1.02rem;
+      max-width: 900px;
+    }
+
+    ul,ol {
+      margin: .4rem 0 1.3rem;
+      padding-left: 1.3rem;
+    }
+    li {
+      margin-bottom: .55rem;
+    }
+    strong {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    a:not(.btn) {
+      color: var(--accent);
+      text-decoration: none;
+      position: relative;
+      font-weight: 500;
+    }
+    a:not(.btn):hover {
+      text-decoration: underline;
+    }
+
+    pre, code, .code-line {
+      font-family: "SFMono-Regular",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;
+      font-size: .85rem;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid rgba(255,255,255,.08);
+      padding: 1rem 1rem 1.15rem;
+      border-radius: var(--radius);
+      overflow: auto;
+      position: relative;
+      margin: 1rem 0 1.6rem;
+      line-height: 1.4;
+      box-shadow: 0 4px 18px -6px rgba(0,0,0,.65);
+    }
+    pre code {
+      display: block;
+      color: #e5f1ff;
+      font-weight: 500;
+      white-space: pre;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: .65rem;
+      right: .65rem;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      color: #fff;
+      font-size: .65rem;
+      padding: .45rem .6rem;
+      border-radius: 7px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      backdrop-filter: blur(4px);
+      transition: background .3s;
+    }
+    .copy-btn:hover {
+      background: rgba(255,255,255,.15);
+    }
+    .copy-btn.copied {
+      background: #2f9b55;
+      border-color: #46c978;
+    }
+
+    .inline-code {
+      background: var(--code-bg);
+      color: #fffa;
+      padding: .15rem .45rem .22rem;
+      border-radius: 6px;
+      font-size: .78rem;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,.1);
+      white-space: nowrap;
+    }
+
+    details.faq {
+      background: var(--bg-alt);
+      border: 1px solid var(--bg-softer);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      margin-top: 1.2rem;
+    }
+    details.faq summary {
+      cursor: pointer;
+      font-weight: 600;
+      list-style: none;
+    }
+    details.faq[open] {
+      box-shadow: 0 4px 18px -6px rgba(0,0,0,.5);
+      background: linear-gradient(145deg,var(--bg-alt),var(--bg-soft));
+    }
+    details.faq summary::-webkit-details-marker {
+      display: none;
+    }
+    .hint {
+      background: linear-gradient(90deg,rgba(77,141,255,.18),rgba(185,102,255,.18));
+      border: 1px solid rgba(255,255,255,.15);
+      padding: .85rem 1rem;
+      border-radius: 12px;
+      font-size: .82rem;
+      line-height: 1.4;
+      margin: 1.1rem 0 1.4rem;
+      backdrop-filter: blur(4px);
+    }
+    .hint strong {
+      color: #fff;
+    }
+
+    .inline-badge {
+      background: var(--accent-soft);
+      color: #fff;
+      font-weight: 600;
+      font-size: .65rem;
+      padding: .35rem .55rem .4rem;
+      border-radius: 6px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      display: inline-block;
+      margin-right: .4rem;
+      vertical-align: middle;
+    }
+
+    .footer {
+      padding: 3.5rem 1.4rem 4.5rem;
+      text-align: center;
+      opacity: .75;
+      font-size: .8rem;
+      max-width: 980px;
+      margin: 0 auto;
+      color: var(--text-dim);
+    }
+    .signature {
+      margin-top: 2.2rem;
+      font-size: .9rem;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    blockquote {
+      margin: 1.4rem 0;
+      padding: 1rem 1.1rem 1.1rem;
+      background: linear-gradient(120deg,var(--bg-softer),var(--bg-soft) 55%,var(--bg-alt));
+      border-left: 4px solid var(--accent);
+      border-radius: 10px;
+      font-size: .95rem;
+      color: var(--text-dim);
+    }
+
+    .grid {
+      display: grid;
+      gap: 1.4rem;
+    }
+
+    .callout {
+      background: linear-gradient(150deg,var(--bg-soft),var(--bg-alt));
+      border: 1px solid var(--bg-softer);
+      padding: 1.2rem 1.25rem 1.4rem;
+      border-radius: 14px;
+      font-size: .9rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .callout::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 80% 20%,rgba(77,141,255,.25),transparent 70%);
+      opacity: .35;
+      pointer-events: none;
+    }
+    .callout h3 {
+      margin: 0 0 .6rem;
+      font-size: .95rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    .separator {
+      height: 1px;
+      background: linear-gradient(90deg,transparent,var(--bg-softer),transparent);
+      margin: 3.5rem 0 2.7rem;
+      border: none;
+    }
+
+    /* Dark/Light toggle */
+    .theme-toggle {
+      position: fixed;
+      bottom: 1.2rem;
+      right: 1.2rem;
+      z-index: 50;
+      background: var(--bg-alt);
+      color: var(--text);
+      border: 1px solid var(--bg-softer);
+      padding: .6rem .85rem;
+      font-size: .75rem;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      box-shadow: 0 4px 14px -6px rgba(0,0,0,.6);
+      backdrop-filter: blur(5px);
+      transition: background .35s;
+    }
+    .theme-toggle:hover {
+      background: var(--bg-soft);
+    }
+
+    .quick-nav {
+      position: fixed;
+      top: 50%;
+      translate: 0 -50%;
+      right: 0;
+      padding: .6rem .5rem;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      z-index: 40;
+    }
+    .quick-nav a {
+      background: var(--bg-alt);
+      width: 42px;
+      height: 42px;
+      border-radius: 14px 0 0 14px;
+      border: 1px solid var(--bg-softer);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .8rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: .04em;
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      transition: color .3s, background .3s;
+    }
+    .quick-nav a:hover {
+      background: var(--bg-soft);
+      color: #fff;
+    }
+    .quick-nav a::before {
+      content: attr(data-label);
+      position: absolute;
+      left: -999px;
+      opacity: 0;
+      pointer-events: none;
+      background: var(--bg-alt);
+      border: 1px solid var(--bg-softer);
+      padding: .45rem .6rem;
+      font-size: .65rem;
+      border-radius: 7px;
+      top: 50%;
+      translate: 0 -50%;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px -6px rgba(0,0,0,.5);
+      transition: .35s;
+    }
+    .quick-nav a:hover::before {
+      left: -4px;
+      opacity: 1;
+    }
+
+    @media (max-width: 920px) {
+      .quick-nav { display: none; }
+    }
+
+    @media (max-width: 780px) {
+      header { padding-top: 2.6rem; }
+      section.step {
+        padding: 1.7rem 1.3rem 2rem;
+      }
+      .actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      [data-animate] {
+        opacity: 0;
+        transform: translateY(18px);
+        animation: fadeUp .9s cubic-bezier(.4,.8,.2,1) forwards;
+      }
+      [data-animate][data-delay="1"] { animation-delay: .08s; }
+      [data-animate][data-delay="2"] { animation-delay: .15s; }
+      [data-animate][data-delay="3"] { animation-delay: .22s; }
+      [data-animate][data-delay="4"] { animation-delay: .3s; }
+      [data-animate][data-delay="5"] { animation-delay: .38s; }
+      @keyframes fadeUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">
+    <span id="themeIcon">🌙</span>
+    <span id="themeLabel">Dark</span>
+  </button>
+
+  <div class="quick-nav" aria-label="Quick step navigation">
+    <a href="#step1" data-label="Download">1</a>
+    <a href="#step2" data-label="Extensions">2</a>
+    <a href="#step3" data-label="Source Control">3</a>
+    <a href="#step4" data-label="Clone Repo">4</a>
+    <a href="#step5" data-label="Open File">5</a>
+    <a href="#step6" data-label="Copilot">6</a>
+    <a href="#step7" data-label="Build">7</a>
+    <a href="#step8" data-label="Preview">8</a>
+    <a href="#step9" data-label="Publish">9</a>
+  </div>
+
+  <header>
+    <div class="hero">
+      <h1 data-animate data-delay="1">Behind The Bonnet</h1>
+      <p class="lead" data-animate data-delay="2">
+        Your first website starts here. Follow these nine steps to install VS Code,
+        set up Git, enable GitHub Copilot, edit your <span class="inline-code">index.html</span>,
+        and publish updates to <strong>behindthebonnet.me</strong>.
+      </p>
+      <div class="actions" data-animate data-delay="3">
+        <a href="#step1" class="btn">
+          🚀 Start the Guide
+        </a>
+        <a href="#step7" class="btn alt">
+          ✍️ Skip to Editing
+        </a>
+        <button class="btn outline" id="collapseAllBtn" type="button">
+          ➖ Collapse Steps
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <nav aria-label="Table of contents">
+    <div class="toc" data-animate data-delay="4">
+      <h2>Navigation</h2>
+      <a href="#step1"><span class="step">01</span> Download Visual Studio Code</a>
+      <a href="#step2"><span class="step">02</span> Install Extensions</a>
+      <a href="#step3"><span class="step">03</span> Source Control Setup</a>
+      <a href="#step4"><span class="step">04</span> Clone Your Repository</a>
+      <a href="#step5"><span class="step">05</span> Open index.html</a>
+      <a href="#step6"><span class="step">06</span> Enable GitHub Copilot</a>
+      <a href="#step7"><span class="step">07</span> Start Building</a>
+      <a href="#step8"><span class="step">08</span> Preview Locally</a>
+      <a href="#step9"><span class="step">09</span> Commit & Publish</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- Step 1 -->
+    <section id="step1" class="step">
+      <div class="step-header">
+        <div class="badge">Step 1</div>
+        <h2>Download Visual Studio Code</h2>
+      </div>
+      <p>
+        Install VS Code — your code editor. Use the primary link below (Windows 64-bit user installer).
+        If it doesn’t work, use the fallback general download page.
+      </p>
+      <div class="grid">
+        <div class="callout">
+          <h3>Download Links</h3>
+          <ul>
+            <li>Primary: <a href="https://code.visualstudio.com/docs/?dv=win64user" target="_blank" rel="noopener">https://code.visualstudio.com/docs/?dv=win64user</a></li>
+            <li>Fallback: <a href="https://code.visualstudio.com/download" target="_blank" rel="noopener">https://code.visualstudio.com/download</a></li>
+          </ul>
+          <div class="hint">
+            <strong>Tip:</strong> Run the installer and keep defaults. Allow it to add a shortcut and context menu options if prompted.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 2 -->
+    <section id="step2" class="step">
+      <div class="step-header">
+        <div class="badge">Step 2</div>
+        <h2>Install VS Code Extensions</h2>
+      </div>
+      <p>
+        Open VS Code and click the Extensions icon (four squares). Install two extensions: GitHub Copilot and an HTML preview tool.
+      </p>
+      <ol>
+        <li>Open the <strong>Extensions</strong> panel.</li>
+        <li>Search for: <span class="inline-code">GitHub Copilot</span> & install.</li>
+        <li>Search for: <span class="inline-code">HTML Preview</span> (or “Live Preview” by Microsoft) & install.</li>
+        <li>If it asks, click <strong>Accept</strong> or <strong>Trust Publisher</strong>.</li>
+      </ol>
+      <details class="faq">
+        <summary>What if I can't find HTML Preview?</summary>
+        <p>Install <strong>Live Server</strong> or <strong>Live Preview</strong> instead. They let you see changes in real time.</p>
+      </details>
+    </section>
+
+    <!-- Step 3 -->
+    <section id="step3" class="step">
+      <div class="step-header">
+        <div class="badge">Step 3</div>
+        <h2>Go to Source Control</h2>
+      </div>
+      <p>
+        Click the Source Control icon (it looks like a branch with a dot). Sign in and install Git if needed.
+      </p>
+      <ol>
+        <li>Click Source Control.</li>
+        <li>Sign in with GitHub (browser window will open — authorize).</li>
+        <li>If prompted to install Git, accept. If not, install manually from:
+          <a href="https://git-scm.com/downloads/win" target="_blank" rel="noopener">https://git-scm.com/downloads/win</a>.
+        </li>
+        <li>Restart VS Code after Git installs (if necessary).</li>
+      </ol>
+      <blockquote>
+        If Git is missing, VS Code can't clone your repository or commit changes. Make sure it’s installed and
+        available in your system PATH — the installer usually handles this automatically.
+      </blockquote>
+    </section>
+
+    <!-- Step 4 -->
+    <section id="step4" class="step">
+      <div class="step-header">
+        <div class="badge">Step 4</div>
+        <h2>Clone Your GitHub Repository</h2>
+      </div>
+      <p>
+        Now bring your code from GitHub to your computer (this is called cloning).
+      </p>
+      <ol>
+        <li>Press <span class="inline-code">Ctrl + Shift + P</span> (Command Palette).</li>
+        <li>Type: <span class="inline-code">GitHub: Clone Repository</span> and press Enter.</li>
+        <li>Select the repository named <strong>behindthebonnet</strong> or <strong>behindthebonnet.me</strong>.</li>
+        <li>Choose a folder on your computer where the files will download.</li>
+        <li>Open the cloned folder in VS Code if it doesn’t open automatically.</li>
+      </ol>
+      <pre><button class="copy-btn" data-copy="# Repo Name\na typical one might look like:\nbehindthebonnet/behindthebonnet.me">Copy</button><code># Repo Name (example)
+behindthebonnet/behindthebonnet.me
+</code></pre>
+      <div class="hint"><strong>Next:</strong> You should now see files like <span class="inline-code">index.html</span> in the Explorer sidebar.</div>
+    </section>
+
+    <!-- Step 5 -->
+    <section id="step5" class="step">
+      <div class="step-header">
+        <div class="badge">Step 5</div>
+        <h2>Open the index.html File</h2>
+      </div>
+      <p>
+        This is the main file that controls what your homepage looks like.
+      </p>
+      <ol>
+        <li>In the Explorer sidebar, find <span class="inline-code">index.html</span>.</li>
+        <li>Click it to open in the editor.</li>
+        <li>If it’s empty or minimal, you can paste the content you want or use Copilot to scaffold it.</li>
+      </ol>
+      <details class="faq">
+        <summary>What if there is no index.html?</summary>
+        <p>Create a new file named <span class="inline-code">index.html</span> in the root of the project (not inside a subfolder) and add starter HTML.</p>
+      </details>
+      <pre><button class="copy-btn" data-copy="<!DOCTYPE html>\n<html lang='en'>\n<head>\n  <meta charset='UTF-8' />\n  <title>Behind The Bonnet</title>\n</head>\n<body>\n  <h1>Welcome to Behind The Bonnet</h1>\n  <p>Building soon...</p>\n</body>\n</html>">Copy</button><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8" /&gt;
+  &lt;title&gt;Behind The Bonnet&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Welcome to Behind The Bonnet&lt;/h1&gt;
+  &lt;p&gt;Building soon...&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+    </section>
+
+    <!-- Step 6 -->
+    <section id="step6" class="step">
+      <div class="step-header">
+        <div class="badge">Step 6</div>
+        <h2>Set Up GitHub Copilot</h2>
+      </div>
+      <p>
+        Turn on Copilot so it can help you write code faster (and suggest HTML as you type).
+      </p>
+      <ol>
+        <li>Click the Copilot icon on the top-right (looks like a robot face).</li>
+        <li>Sign in with your GitHub/Microsoft account (GitHub Education gives you access).</li>
+        <li>Open the Copilot chat sidebar if needed.</li>
+        <li>Switch it into <strong>Agent Mode</strong> (if available) for conversational edits.</li>
+        <li>In the chat type requests like:
+          <pre><button class="copy-btn" data-copy="Add a big centered heading that says Welcome to Behind The Bonnet and a dark background with white text.">Copy</button><code>Add a big centered heading that says
+Welcome to Behind The Bonnet
+and a dark background with white text.</code></pre>
+        </li>
+      </ol>
+      <div class="hint"><strong>Tip:</strong> Press <span class="inline-code">Tab</span> to accept suggestions as you type.</div>
+    </section>
+
+    <!-- Step 7 -->
+    <section id="step7" class="step">
+      <div class="step-header">
+        <div class="badge">Step 7</div>
+        <h2>Start Building Your Website</h2>
+      </div>
+      <p>
+        You can manually edit the HTML or ask Copilot for changes. Try building structure first, then style.
+      </p>
+      <div class="grid">
+        <div class="callout">
+          <h3>Core Edits</h3>
+          <ul>
+            <li>Change the page title inside <span class="inline-code">&lt;title&gt;</span>.</li>
+            <li>Add a heading: <span class="inline-code">&lt;h1&gt;Welcome to Behind The Bonnet&lt;/h1&gt;</span>.</li>
+            <li>Add a paragraph or button linking to social media.</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <h3>Copilot Prompts</h3>
+          <ul>
+            <li>"Add a footer with my name"</li>
+            <li>"Create a dark theme layout with centered content"</li>
+            <li>"Add a button linking to my Instagram @yourhandle"</li>
+            <li>"Add simple responsive styling"</li>
+          </ul>
+        </div>
+      </div>
+      <pre><button class="copy-btn" data-copy="&lt;section class='hero'&gt;\n  &lt;h1&gt;Welcome to Behind The Bonnet&lt;/h1&gt;\n  &lt;p&gt;Exploring what’s under the hood.&lt;/p&gt;\n  &lt;a href='https://instagram.com/YOUR_HANDLE' target='_blank'&gt;Instagram&lt;/a&gt;\n&lt;/section&gt;">Copy</button><code>&lt;section class="hero"&gt;
+  &lt;h1&gt;Welcome to Behind The Bonnet&lt;/h1&gt;
+  &lt;p&gt;Exploring what’s under the hood.&lt;/p&gt;
+  &lt;a href="https://instagram.com/YOUR_HANDLE" target="_blank"&gt;Instagram&lt;/a&gt;
+&lt;/section&gt;
+</code></pre>
+      <details class="faq">
+        <summary>Can I add CSS?</summary>
+        <p>Yes. Add a <span class="inline-code">&lt;style&gt;</span> tag inside <span class="inline-code">&lt;head&gt;</span> or create <span class="inline-code">styles.css</span> and link it.</p>
+      </details>
+    </section>
+
+    <!-- Step 8 -->
+    <section id="step8" class="step">
+      <div class="step-header">
+        <div class="badge">Step 8</div>
+        <h2>(Optional) Preview Your Site</h2>
+      </div>
+      <p>
+        Preview your changes locally without pushing to GitHub yet.
+      </p>
+      <ol>
+        <li>Right-click <span class="inline-code">index.html</span>.</li>
+        <li>Select <strong>Open with Live Preview</strong> (or similar) from the extension.</li>
+        <li>A preview pane or browser tab opens — refresh if needed.</li>
+      </ol>
+      <div class="hint"><strong>If nothing happens:</strong> Install <strong>Live Server</strong> extension and click "Go Live" in the bottom bar.</div>
+    </section>
+
+    <!-- Step 9 -->
+    <section id="step9" class="step">
+      <div class="step-header">
+        <div class="badge">Step 9</div>
+        <h2>Save & Publish (Commit & Push)</h2>
+      </div>
+      <p>
+        Once you’re happy, push changes so they appear on <span class="inline-code">https://behindthebonnet.me</span>.
+      </p>
+      <ol>
+        <li>Press <span class="inline-code">Ctrl + S</span> to save all changes.</li>
+        <li>Open the Source Control panel.</li>
+        <li>Type a message like: <span class="inline-code">updated homepage</span>.</li>
+        <li>Click the <strong>Commit / ✓</strong> button (or sparkle AI message icon if using it).</li>
+        <li>Then click <strong>Push</strong> (or it may auto-push if configured).</li>
+      </ol>
+      <pre><button class="copy-btn" data-copy="updated homepage">Copy</button><code>updated homepage
+</code></pre>
+      <div class="hint">
+        <strong>Deployment Note:</strong> Wait 1–2 minutes. Then refresh your live site. If it doesn’t update, ensure GitHub Pages (or your deployment workflow) is configured for the correct branch (usually <span class="inline-code">main</span>).
+      </div>
+      <details class="faq">
+        <summary>Site didn't update?</summary>
+        <ul>
+          <li>Check you really pushed (not just committed).</li>
+          <li>Reload with <span class="inline-code">Ctrl + Shift + R</span> (clear cache).</li>
+          <li>Verify DNS / Pages settings in repository settings.</li>
+        </ul>
+      </details>
+    </section>
+
+    <hr class="separator" />
+
+    <section class="step" id="extras">
+      <div class="step-header">
+        <div class="badge">Extras</div>
+        <h2>Next Ideas</h2>
+      </div>
+      <p>Add more to your site:</p>
+      <ul>
+        <li>Link to Instagram, X/Twitter, GitHub, and email.</li>
+        <li>Add a <span class="inline-code">/projects</span> section for what you build.</li>
+        <li>Create a dark/light toggle (there is one here already—reuse code).</li>
+        <li>Ask Copilot: <em>"Add a responsive 2-column layout for content and sidebar."</em></li>
+      </ul>
+      <pre><button class="copy-btn" data-copy="<!-- Simple footer snippet -->\n<footer>\n  <p>&copy; 2025 Behind The Bonnet. Built with curiosity.</p>\n</footer>">Copy</button><code>&lt;!-- Simple footer snippet --&gt;
+&lt;footer&gt;
+  &lt;p&gt;&copy; 2025 Behind The Bonnet. Built with curiosity.&lt;/p&gt;
+&lt;/footer&gt;
+</code></pre>
+    </section>
+
+    <div class="footer">
+      <p>This page itself can become your homepage or a hidden setup page. Remove sections you don’t need once the site is ready.</p>
+      <div class="signature">- ilyambr</div>
+    </div>
+  </main>
+
+  <script>
+    // Copy buttons
+    document.querySelectorAll(".copy-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const content = btn.getAttribute("data-copy");
+        if (!content) return;
+        navigator.clipboard.writeText(content)
+          .then(() => {
+            btn.classList.add("copied");
+            btn.textContent = "Copied!";
+            setTimeout(() => {
+              btn.classList.remove("copied");
+              btn.textContent = "Copy";
+            }, 1800);
+          })
+          .catch(() => {
+            btn.textContent = "Error";
+            setTimeout(() => (btn.textContent = "Copy"), 1600);
+          });
+      });
+    });
+
+    // Theme toggle
+    const toggle = document.getElementById("themeToggle");
+    const icon = document.getElementById("themeIcon");
+    const label = document.getElementById("themeLabel");
+
+    const setTheme = (mode) => {
+      if (mode === "light") {
+        document.documentElement.classList.add("light");
+        icon.textContent = "🌚";
+        label.textContent = "Light";
+        localStorage.setItem("site-theme","light");
+      } else {
+        document.documentElement.classList.remove("light");
+        icon.textContent = "🌙";
+        label.textContent = "Dark";
+        localStorage.setItem("site-theme","dark");
+      }
+    };
+
+    const stored = localStorage.getItem("site-theme");
+    if (stored) setTheme(stored);
+    else if (window.matchMedia("(prefers-color-scheme: light)").matches) setTheme("light");
+
+    toggle.addEventListener("click", () => {
+      const current = document.documentElement.classList.contains("light") ? "light" : "dark";
+      setTheme(current === "light" ? "dark" : "light");
+    });
+
+    // Collapse all sections
+    const collapseBtn = document.getElementById("collapseAllBtn");
+    let collapsed = false;
+    collapseBtn.addEventListener("click", () => {
+      const steps = document.querySelectorAll("section.step:not(#extras)");
+      collapsed = !collapsed;
+      steps.forEach(s => {
+        s.style.display = collapsed ? "none" : "";
+      });
+      collapseBtn.textContent = collapsed ? "➕ Expand Steps" : "➖ Collapse Steps";
+    });
+
+    // Improve hash scrolling offset if wanted (optional)
+    window.addEventListener("hashchange", () => {
+      const el = document.querySelector(location.hash);
+      if (el) {
+        setTimeout(() => {
+          window.scrollBy({ top: -10, behavior: "smooth" });
+        }, 60);
+      }
+    });
+  </script>
+</body>
+</html>
